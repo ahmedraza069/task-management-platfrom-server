@@ -23,7 +23,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const toDoCollection = client.db("tasksDB").collection("tasks");
 
     app.post("/tasks", async (req, res) => {
@@ -37,33 +37,30 @@ async function run() {
       }
     });
 
-    app.get('/tasks/:email', async (req, res) => {
-        try {
-            const email = req.params.email;
-           // Log the email
-            const filter = { email: email };
-            const result = await toDoCollection.find(filter).toArray();
-          // Log the result
-            res.send(result);
-        } catch (error) {
-            console.log(error);
-            res.status(500).send({ message: "Internal Server Error" });
-        }
+    app.get("/tasks/:email", async (req, res) => {
+      try {
+        const email = req.params.email;
+        // Log the email
+        const filter = { email: email };
+        const result = await toDoCollection.find(filter).toArray();
+        // Log the result
+        res.send(result);
+      } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: "Internal Server Error" });
+      }
     });
-
-    
-    
 
     app.patch("/tasks/:id", async (req, res) => {
       try {
         const id = req.params.id;
-    
+
         const statusData = req.body;
-     
+
         const filter = { _id: new ObjectId(id) };
         const updatedDoc = {
           $set: {
-            status: statusData.status
+            status: statusData.status,
           },
         };
         const result = await toDoCollection.updateOne(filter, updatedDoc);
@@ -72,41 +69,39 @@ async function run() {
         console.log(error);
       }
     });
- 
-// Handle both PUT and PATCH requests for updating tasks
-app.put("/tasks/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-  
-    const taskData = req.body; // Getting the updated task data from the request body
-  // Logging the updated task data
 
-    const filter = { _id: new ObjectId(id) };
-    const updatedDoc = {
-      $set: {
-        title: taskData.title,
-        priority: taskData.priority,
-        startDate: taskData.startDate,
-        endDate: taskData.endDate,
-        description: taskData.description,
-        status: taskData.status
-      },
-    };
+    // Handle both PUT and PATCH requests for updating tasks
+    app.put("/tasks/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
 
-    const result = await toDoCollection.updateOne(filter, updatedDoc);
-    
-    if (result.modifiedCount > 0) {
-      res.status(200).send({ message: 'Task updated successfully' });
-    } else {
-      res.status(400).send({ message: 'Failed to update task' });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({ message: 'Internal server error' });
-  }
-});
+        const taskData = req.body; // Getting the updated task data from the request body
+        // Logging the updated task data
 
+        const filter = { _id: new ObjectId(id) };
+        const updatedDoc = {
+          $set: {
+            title: taskData.title,
+            priority: taskData.priority,
+            startDate: taskData.startDate,
+            endDate: taskData.endDate,
+            description: taskData.description,
+            status: taskData.status,
+          },
+        };
 
+        const result = await toDoCollection.updateOne(filter, updatedDoc);
+
+        if (result.modifiedCount > 0) {
+          res.status(200).send({ message: "Task updated successfully" });
+        } else {
+          res.status(400).send({ message: "Failed to update task" });
+        }
+      } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: "Internal server error" });
+      }
+    });
 
     app.delete("/tasks/:id", async (req, res) => {
       try {
@@ -119,12 +114,11 @@ app.put("/tasks/:id", async (req, res) => {
       }
     });
 
-
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
